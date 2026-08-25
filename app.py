@@ -6,7 +6,17 @@ import json
 from PIL import Image
 
 # Load model
-model = tf.keras.models.load_model("plant_disease_model.keras")
+MODEL_URL = "https://huggingface.co/philona777/plant-disease-model/resolve/main/plant_disease_model.keras"
+
+@st.cache_resource
+def load_model():
+    model_path = tf.keras.utils.get_file(
+        "plant_disease_model.keras",
+        MODEL_URL
+    )
+    return tf.keras.models.load_model(model_path)
+
+model = load_model()
 
 # Load class names
 with open("class_names.json", "r") as f:
