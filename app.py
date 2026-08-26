@@ -32,7 +32,7 @@ st.markdown("""
         #f6faf7;
 }
 
-#MainMenu, footer, header {
+#MainMenu, footer {
     visibility: hidden;
 }
 
