@@ -5,76 +5,196 @@ import json
 from PIL import Image
 
 # =========================================================
-# PAGE CONFIG
+# CONFIG
 # =========================================================
 st.set_page_config(
     page_title="PlantCare AI",
-    page_icon="🌱",
+    page_icon="🌿",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # =========================================================
-# CUSTOM CSS
+# MODERN CSS
 # =========================================================
 st.markdown("""
 <style>
-    .main {
-        padding-top: 1rem;
-    }
 
-    .hero {
-        padding: 2.5rem;
-        border-radius: 20px;
-        text-align: center;
-        margin-bottom: 2rem;
-        background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
-    }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-    .hero h1 {
-        font-size: 3rem;
-        margin-bottom: 0.5rem;
-    }
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif;
+}
 
-    .hero p {
-        font-size: 1.2rem;
-    }
+.stApp {
+    background: #f7f9f8;
+}
 
-    .card {
-        padding: 1.5rem;
-        border-radius: 16px;
-        border: 1px solid #dddddd;
-        margin-bottom: 1rem;
-        background: white;
-    }
+/* Hide Streamlit default elements */
+#MainMenu {
+    visibility: hidden;
+}
 
-    .result-box {
-        padding: 1.5rem;
-        border-radius: 16px;
-        border: 2px solid #4caf50;
-        background: #f1f8e9;
-        margin-top: 1rem;
-    }
+footer {
+    visibility: hidden;
+}
 
-    .disease-title {
-        font-size: 1.8rem;
-        font-weight: bold;
-    }
+header {
+    visibility: hidden;
+}
 
-    .confidence {
-        font-size: 1.3rem;
-        font-weight: bold;
-    }
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background: #ffffff;
+    border-right: 1px solid #e8ece9;
+}
 
-    .small-text {
-        color: #666666;
-    }
+section[data-testid="stSidebar"] h1 {
+    font-weight: 800;
+}
+
+/* Main headings */
+h1, h2, h3 {
+    color: #111814;
+    letter-spacing: -0.5px;
+}
+
+/* Hero */
+.hero {
+    padding: 60px 50px;
+    border-radius: 28px;
+    background: linear-gradient(135deg, #e9f7ef 0%, #f7fbf8 55%, #e4f4ea 100%);
+    border: 1px solid #d9eadf;
+    margin-bottom: 30px;
+}
+
+.hero-label {
+    color: #23864b;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.hero-title {
+    font-size: 48px;
+    line-height: 1.08;
+    font-weight: 800;
+    margin: 12px 0;
+    color: #102018;
+}
+
+.hero-text {
+    font-size: 18px;
+    line-height: 1.6;
+    color: #53635a;
+    max-width: 700px;
+}
+
+/* Cards */
+.card {
+    background: #ffffff;
+    border: 1px solid #e5ebe7;
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+}
+
+.card-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: #16231b;
+}
+
+.card-text {
+    color: #65736a;
+    line-height: 1.6;
+}
+
+/* Upload area */
+.upload-card {
+    background: #ffffff;
+    border: 2px dashed #b8d9c2;
+    border-radius: 24px;
+    padding: 35px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+/* Result */
+.result-card {
+    background: #ffffff;
+    border-radius: 24px;
+    border: 1px solid #dce8df;
+    padding: 30px;
+    margin-top: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.result-label {
+    font-size: 13px;
+    color: #6b7b71;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+.result-name {
+    font-size: 30px;
+    font-weight: 800;
+    color: #17251c;
+    margin-top: 6px;
+}
+
+.confidence-number {
+    font-size: 38px;
+    font-weight: 800;
+    color: #23864b;
+}
+
+/* Stats */
+.stat-card {
+    background: #ffffff;
+    border: 1px solid #e5ebe7;
+    border-radius: 18px;
+    padding: 22px;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 30px;
+    font-weight: 800;
+    color: #23864b;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #69766e;
+}
+
+/* Buttons */
+.stButton > button {
+    border-radius: 12px;
+    font-weight: 700;
+    min-height: 48px;
+}
+
+/* Footer */
+.app-footer {
+    text-align: center;
+    color: #7a857e;
+    padding: 35px 0 10px;
+    font-size: 13px;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
 # =========================================================
 # MODEL
 # =========================================================
+
 MODEL_URL = "https://huggingface.co/philona777/plant-disease-model/resolve/main/plant_disease_model.keras"
 
 @st.cache_resource
@@ -90,135 +210,155 @@ model = load_model()
 # =========================================================
 # CLASS NAMES
 # =========================================================
+
 with open("class_names.json", "r") as f:
     class_names = json.load(f)
 
 # =========================================================
 # DISEASE INFORMATION
 # =========================================================
+
 disease_info = {
-    "Pepper__bell___Bacterial_spot": {
-        "name": "Pepper Bacterial Spot",
-        "description": "A bacterial disease that can cause spots and lesions on pepper leaves and fruit.",
-        "tips": "Avoid overhead watering, remove severely affected plant material, and maintain good airflow."
-    },
 
-    "Pepper__bell___healthy": {
-        "name": "Healthy Pepper Leaf",
-        "description": "The model detected no major disease pattern in this pepper leaf.",
-        "tips": "Continue good watering, sunlight, nutrition, and regular monitoring."
-    },
+    "Pepper__bell___Bacterial_spot": (
+        "Pepper Bacterial Spot",
+        "A bacterial disease that can cause spots and lesions on pepper leaves and fruit.",
+        "Improve airflow, avoid unnecessary leaf wetness, and remove severely affected plant material."
+    ),
 
-    "Potato___Early_blight": {
-        "name": "Potato Early Blight",
-        "description": "A fungal disease that commonly produces dark spots on potato leaves.",
-        "tips": "Remove affected leaves, avoid wetting foliage unnecessarily, and maintain good plant spacing."
-    },
+    "Pepper__bell___healthy": (
+        "Healthy Pepper Leaf",
+        "The model detected a healthy pepper leaf.",
+        "Continue regular watering, sunlight, nutrition, and monitoring."
+    ),
 
-    "Potato___Late_blight": {
-        "name": "Potato Late Blight",
-        "description": "A serious disease of potato plants that can spread quickly under favorable conditions.",
-        "tips": "Remove affected plant material and improve airflow. Monitor nearby plants carefully."
-    },
+    "Potato___Early_blight": (
+        "Potato Early Blight",
+        "A fungal disease that commonly produces dark spots on potato leaves.",
+        "Remove affected leaves and maintain good spacing and airflow."
+    ),
 
-    "Potato___healthy": {
-        "name": "Healthy Potato Leaf",
-        "description": "The model detected no major disease pattern in this potato leaf.",
-        "tips": "Continue regular monitoring and maintain healthy growing conditions."
-    },
+    "Potato___Late_blight": (
+        "Potato Late Blight",
+        "A serious disease that can spread rapidly under favorable conditions.",
+        "Remove affected plant material and avoid prolonged leaf wetness."
+    ),
 
-    "Tomato_Bacterial_spot": {
-        "name": "Tomato Bacterial Spot",
-        "description": "A bacterial disease that can produce small dark spots on tomato leaves and fruit.",
-        "tips": "Avoid overhead watering and keep foliage dry when possible."
-    },
+    "Potato___healthy": (
+        "Healthy Potato Leaf",
+        "The model detected a healthy potato leaf.",
+        "Continue normal plant care and monitor regularly."
+    ),
 
-    "Tomato_Early_blight": {
-        "name": "Tomato Early Blight",
-        "description": "A fungal disease that can cause characteristic dark lesions on tomato leaves.",
-        "tips": "Remove affected leaves and improve airflow around the plant."
-    },
+    "Tomato_Bacterial_spot": (
+        "Tomato Bacterial Spot",
+        "A bacterial disease that can produce dark spots on tomato leaves and fruit.",
+        "Avoid overhead watering and keep foliage dry when possible."
+    ),
 
-    "Tomato_Late_blight": {
-        "name": "Tomato Late Blight",
-        "description": "A plant disease that can rapidly affect tomato foliage under suitable environmental conditions.",
-        "tips": "Remove affected material and avoid prolonged leaf wetness."
-    },
+    "Tomato_Early_blight": (
+        "Tomato Early Blight",
+        "A fungal disease that can cause dark lesions on tomato foliage.",
+        "Remove affected leaves and improve airflow around plants."
+    ),
 
-    "Tomato_Leaf_Mold": {
-        "name": "Tomato Leaf Mold",
-        "description": "A fungal disease often associated with humid conditions and poor airflow.",
-        "tips": "Improve ventilation and avoid excessive humidity around the foliage."
-    },
+    "Tomato_Late_blight": (
+        "Tomato Late Blight",
+        "A disease that can rapidly affect tomato plants under suitable conditions.",
+        "Remove affected material and minimize prolonged leaf wetness."
+    ),
 
-    "Tomato_Septoria_leaf_spot": {
-        "name": "Tomato Septoria Leaf Spot",
-        "description": "A fungal disease that causes numerous small spots on tomato leaves.",
-        "tips": "Remove affected leaves and avoid splashing water onto foliage."
-    },
+    "Tomato_Leaf_Mold": (
+        "Tomato Leaf Mold",
+        "A fungal disease often associated with humid conditions and poor airflow.",
+        "Improve ventilation and avoid excessive humidity around foliage."
+    ),
 
-    "Tomato_Spider_mites_Two_spotted_spider_mite": {
-        "name": "Tomato Spider Mites",
-        "description": "Tiny pests that can cause stippling, discoloration, and leaf damage.",
-        "tips": "Inspect the underside of leaves regularly and maintain appropriate plant care."
-    },
+    "Tomato_Septoria_leaf_spot": (
+        "Tomato Septoria Leaf Spot",
+        "A fungal disease that produces numerous small spots on tomato leaves.",
+        "Remove affected leaves and avoid splashing water onto foliage."
+    ),
 
-    "Tomato__Target_Spot": {
-        "name": "Tomato Target Spot",
-        "description": "A fungal disease that produces circular lesions on tomato leaves and other plant parts.",
-        "tips": "Improve airflow and remove severely affected plant material."
-    },
+    "Tomato_Spider_mites_Two_spotted_spider_mite": (
+        "Tomato Spider Mites",
+        "Tiny pests that can cause stippling and discoloration of leaves.",
+        "Inspect the underside of leaves regularly and monitor plants closely."
+    ),
 
-    "Tomato__Tomato_YellowLeaf__Curl_Virus": {
-        "name": "Tomato Yellow Leaf Curl Virus",
-        "description": "A viral disease that can cause yellowing, curling, and reduced plant growth.",
-        "tips": "Monitor for insect vectors such as whiteflies and remove severely affected plants where appropriate."
-    },
+    "Tomato__Target_Spot": (
+        "Tomato Target Spot",
+        "A fungal disease that produces circular lesions on tomato leaves.",
+        "Improve airflow and remove severely affected plant material."
+    ),
 
-    "Tomato__Tomato_mosaic_virus": {
-        "name": "Tomato Mosaic Virus",
-        "description": "A viral disease that can cause mottled or mosaic-like patterns on tomato leaves.",
-        "tips": "Use clean gardening tools and avoid spreading plant sap between plants."
-    },
+    "Tomato__Tomato_YellowLeaf__Curl_Virus": (
+        "Tomato Yellow Leaf Curl Virus",
+        "A viral disease that can cause yellowing, curling, and reduced growth.",
+        "Monitor insect vectors such as whiteflies and remove severely affected plants where appropriate."
+    ),
 
-    "Tomato_healthy": {
-        "name": "Healthy Tomato Leaf",
-        "description": "The model detected no major disease pattern in this tomato leaf.",
-        "tips": "Continue regular monitoring, appropriate watering, sunlight, and plant nutrition."
-    }
+    "Tomato__Tomato_mosaic_virus": (
+        "Tomato Mosaic Virus",
+        "A viral disease that can produce mottled or mosaic-like leaf patterns.",
+        "Keep tools clean and avoid transferring plant sap between plants."
+    ),
+
+    "Tomato_healthy": (
+        "Healthy Tomato Leaf",
+        "The model detected a healthy tomato leaf.",
+        "Continue regular monitoring, watering, sunlight, and plant nutrition."
+    )
 }
 
 # =========================================================
-# SIDEBAR NAVIGATION
+# SIDEBAR
 # =========================================================
-st.sidebar.title("🌱 PlantCare AI")
-st.sidebar.caption("AI-Powered Plant Disease Detection")
+
+st.sidebar.markdown("# 🌿 PlantCare AI")
+st.sidebar.caption("AI-powered plant health assistant")
+
+st.sidebar.markdown("---")
 
 page = st.sidebar.radio(
-    "Navigation",
+    "MENU",
     [
-        "🏠 Home",
-        "🔍 Detect Disease",
-        "📚 Disease Guide",
-        "🤖 About Model",
-        "ℹ️ About Project"
+        "Home",
+        "Detect Disease",
+        "Disease Library",
+        "About Model",
+        "About Project"
     ]
 )
 
 st.sidebar.markdown("---")
-st.sidebar.caption("Machine Learning Project")
-st.sidebar.caption("Plant Disease Detection")
+
+st.sidebar.caption("Powered by TensorFlow")
+st.sidebar.caption("Plant Disease Classification")
 
 # =========================================================
 # HOME
 # =========================================================
-if page == "🏠 Home":
+
+if page == "Home":
 
     st.markdown("""
     <div class="hero">
-        <h1>🌱 PlantCare AI</h1>
-        <p>Intelligent Plant Disease Detection using Machine Learning</p>
-        <p>Upload a leaf image and let the AI analyze it.</p>
+
+        <div class="hero-label">
+        AI-POWERED PLANT HEALTH
+        </div>
+
+        <div class="hero-title">
+        Know your plant.<br>
+        Protect your harvest.
+        </div>
+
+        <div class="hero-text">
+        PlantCare AI analyzes leaf images using deep learning
+        to identify common diseases in tomato, potato, and pepper plants.
+        </div>
+
     </div>
     """, unsafe_allow_html=True)
 
@@ -226,288 +366,440 @@ if page == "🏠 Home":
 
     with col1:
         st.markdown("""
-        <div class="card">
-            <h2>🔍 Detect</h2>
-            <p>Upload a plant leaf image and get an AI-powered prediction.</p>
+        <div class="stat-card">
+            <div class="stat-number">15</div>
+            <div class="stat-label">Disease Classes</div>
         </div>
         """, unsafe_allow_html=True)
 
     with col2:
         st.markdown("""
-        <div class="card">
-            <h2>📊 Analyze</h2>
-            <p>View the predicted disease and the model's confidence score.</p>
+        <div class="stat-card">
+            <div class="stat-number">91.3%</div>
+            <div class="stat-label">Validation Accuracy</div>
         </div>
         """, unsafe_allow_html=True)
 
     with col3:
         st.markdown("""
-        <div class="card">
-            <h2>🌿 Learn</h2>
-            <p>Explore information and general care tips for detected conditions.</p>
+        <div class="stat-card">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Plant Types</div>
         </div>
         """, unsafe_allow_html=True)
 
-    st.markdown("## 🌾 Supported Plants")
+    st.markdown("##")
 
-    c1, c2, c3 = st.columns(3)
+    col1, col2 = st.columns([1.3, 1])
 
-    with c1:
-        st.success("🌶️ Pepper")
+    with col1:
 
-    with c2:
-        st.success("🥔 Potato")
+        st.markdown("""
+        <div class="card">
 
-    with c3:
-        st.success("🍅 Tomato")
+        <div class="card-title">
+        🌱 How PlantCare AI works
+        </div>
+
+        <br>
+
+        <div class="card-text">
+        <b>01 — Upload</b><br>
+        Upload a clear photo of a plant leaf.
+        <br><br>
+
+        <b>02 — Analyze</b><br>
+        Our trained deep learning model analyzes the image.
+        <br><br>
+
+        <b>03 — Understand</b><br>
+        Receive a predicted condition, confidence score,
+        and general care information.
+        </div>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+
+        st.markdown("""
+        <div class="card">
+
+        <div class="card-title">
+        🔬 Supported plants
+        </div>
+
+        <br>
+
+        <div class="card-text">
+        🍅 Tomato<br><br>
+        🥔 Potato<br><br>
+        🌶️ Pepper
+        </div>
+
+        </div>
+        """, unsafe_allow_html=True)
 
     st.markdown("---")
 
     st.info(
-        "💡 Tip: For the best prediction, upload a clear image where the leaf "
-        "is visible and well lit."
+        "For best results, use a clear, well-lit image where the leaf "
+        "is clearly visible."
     )
 
 # =========================================================
-# DETECT DISEASE
+# DETECT
 # =========================================================
-elif page == "🔍 Detect Disease":
 
-    st.title("🔍 Plant Disease Detection")
+elif page == "Detect Disease":
+
+    st.title("Detect Plant Disease")
+
     st.write(
-        "Upload a clear image of a tomato, potato, or pepper leaf."
+        "Upload a leaf image and let PlantCare AI analyze it."
     )
 
     uploaded_file = st.file_uploader(
-        "📷 Choose a leaf image",
-        type=["jpg", "jpeg", "png"]
+        "Upload leaf image",
+        type=["jpg", "jpeg", "png"],
+        label_visibility="collapsed"
     )
 
-    if uploaded_file is not None:
+    if uploaded_file is None:
+
+        st.markdown("""
+        <div class="upload-card">
+
+        <div style="font-size:50px;">📷</div>
+
+        <h3>Upload a leaf image</h3>
+
+        <p style="color:#68766e;">
+        JPG, JPEG or PNG • Clear images work best
+        </p>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+    else:
 
         image = Image.open(uploaded_file).convert("RGB")
 
-        col1, col2 = st.columns([1, 1])
+        st.markdown("### Preview")
+
+        col1, col2 = st.columns([1.1, 1])
 
         with col1:
+
             st.image(
                 image,
-                caption="Uploaded Leaf",
                 use_container_width=True
             )
 
         with col2:
-            st.markdown("### 📋 Image Information")
-            st.write(f"**File:** {uploaded_file.name}")
-            st.write(f"**Size:** {image.size[0]} × {image.size[1]} pixels")
-            st.write("**Format:** RGB")
 
-        st.markdown("---")
+            st.markdown("""
+            <div class="card">
 
-        if st.button("🔬 Analyze Leaf", type="primary", use_container_width=True):
+            <div class="card-title">
+            Image ready
+            </div>
 
-            with st.spinner("🤖 AI is analyzing the leaf..."):
+            <br>
 
-                img = image.resize((224, 224))
-                img_array = np.array(img)
-                img_array = np.expand_dims(img_array, axis=0)
+            <div class="card-text">
+            Your leaf image is ready to be analyzed.
+            <br><br>
+            <b>Recommended:</b><br>
+            • Clear leaf<br>
+            • Good lighting<br>
+            • Minimal background distraction
+            </div>
 
-                predictions = model.predict(
-                    img_array,
-                    verbose=0
-                )
-
-                predicted_index = np.argmax(predictions[0])
-                predicted_class = class_names[predicted_index]
-                confidence = float(
-                    predictions[0][predicted_index] * 100
-                )
-
-            info = disease_info.get(
-                predicted_class,
-                {
-                    "name": predicted_class.replace("_", " "),
-                    "description": "The model identified this class.",
-                    "tips": "Continue monitoring the plant and consider consulting a plant specialist."
-                }
-            )
-
-            st.markdown("## 🎯 Detection Result")
-
-            st.markdown(f"""
-            <div class="result-box">
-                <div class="disease-title">🌿 {info["name"]}</div>
-                <br>
-                <div class="confidence">
-                    🎯 Confidence: {confidence:.2f}%
-                </div>
             </div>
             """, unsafe_allow_html=True)
 
-            st.progress(
-                min(confidence / 100, 1.0)
+            analyze = st.button(
+                "🔬 Analyze Leaf",
+                type="primary",
+                use_container_width=True
             )
 
-            if confidence >= 80:
-                st.success("✅ High-confidence prediction")
+            if analyze:
 
-            elif confidence >= 60:
-                st.warning("⚠️ Moderate-confidence prediction")
+                with st.spinner("Analyzing leaf with AI..."):
 
-            else:
-                st.warning(
-                    "⚠️ Low-confidence prediction. Try uploading a clearer leaf image."
+                    img = image.resize((224, 224))
+
+                    img_array = np.array(img)
+
+                    img_array = np.expand_dims(
+                        img_array,
+                        axis=0
+                    )
+
+                    predictions = model.predict(
+                        img_array,
+                        verbose=0
+                    )
+
+                    predicted_index = np.argmax(
+                        predictions[0]
+                    )
+
+                    predicted_class = class_names[
+                        predicted_index
+                    ]
+
+                    confidence = float(
+                        predictions[0][predicted_index] * 100
+                    )
+
+                name, description, tips = disease_info.get(
+                    predicted_class,
+                    (
+                        predicted_class.replace("_", " "),
+                        "The model identified this condition.",
+                        "Monitor the plant and consider expert advice."
+                    )
                 )
 
-            st.markdown("### 📖 About This Result")
-            st.write(info["description"])
+                st.markdown("""
+                <div class="result-card">
 
-            st.markdown("### 🌱 General Care Tips")
-            st.info(info["tips"])
+                <div class="result-label">
+                DETECTION COMPLETE
+                </div>
 
-            st.caption(
-                "Note: This AI prediction is for educational/project purposes "
-                "and should not replace expert agricultural diagnosis."
-            )
+                <div class="result-name">
+                🌿 %s
+                </div>
+
+                <br>
+
+                <div class="result-label">
+                MODEL CONFIDENCE
+                </div>
+
+                <div class="confidence-number">
+                %.2f%%
+                </div>
+
+                </div>
+                """ % (name, confidence), unsafe_allow_html=True)
+
+                st.progress(
+                    min(confidence / 100, 1.0)
+                )
+
+                if confidence >= 80:
+                    st.success(
+                        "High-confidence prediction"
+                    )
+                elif confidence >= 60:
+                    st.warning(
+                        "Moderate-confidence prediction"
+                    )
+                else:
+                    st.warning(
+                        "Low-confidence prediction. "
+                        "Try a clearer image."
+                    )
+
+                col1, col2 = st.columns(2)
+
+                with col1:
+
+                    st.markdown("""
+                    <div class="card">
+
+                    <div class="card-title">
+                    📖 What this means
+                    </div>
+
+                    <br>
+
+                    <div class="card-text">
+                    %s
+                    </div>
+
+                    </div>
+                    """ % description, unsafe_allow_html=True)
+
+                with col2:
+
+                    st.markdown("""
+                    <div class="card">
+
+                    <div class="card-title">
+                    🌱 General care
+                    </div>
+
+                    <br>
+
+                    <div class="card-text">
+                    %s
+                    </div>
+
+                    </div>
+                    """ % tips, unsafe_allow_html=True)
+
+                st.caption(
+                    "This prediction is intended for educational and "
+                    "project purposes and should not replace professional "
+                    "agricultural diagnosis."
+                )
 
 # =========================================================
-# DISEASE GUIDE
+# DISEASE LIBRARY
 # =========================================================
-elif page == "📚 Disease Guide":
 
-    st.title("📚 Disease Guide")
+elif page == "Disease Library":
+
+    st.title("Disease Library")
 
     st.write(
-        "Explore the plant conditions included in the trained model."
+        "Explore the plant conditions included in the model."
     )
 
-    selected_disease = st.selectbox(
-        "Select a disease or plant condition",
-        class_names
+    search = st.text_input(
+        "Search diseases",
+        placeholder="Search tomato, potato, bacterial..."
     )
 
-    info = disease_info.get(
-        selected_disease,
-        {
-            "name": selected_disease.replace("_", " "),
-            "description": "Information is not available for this class.",
-            "tips": "Monitor the plant and seek expert advice if necessary."
-        }
-    )
+    filtered = []
 
-    st.markdown(f"## 🌿 {info['name']}")
+    for disease in class_names:
 
-    st.markdown(
-        f"""
-        <div class="card">
-            <h3>📖 Description</h3>
-            <p>{info['description']}</p>
+        display_name = disease.replace("_", " ")
 
-            <h3>🌱 General Care</h3>
-            <p>{info['tips']}</p>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+        if search.lower() in display_name.lower():
+            filtered.append(disease)
+
+    if not filtered:
+        st.warning("No matching disease found.")
+
+    for disease in filtered:
+
+        name, description, tips = disease_info.get(
+            disease,
+            (
+                disease.replace("_", " "),
+                "Information unavailable.",
+                "Monitor the plant."
+            )
+        )
+
+        with st.expander(name):
+
+            st.write(description)
+
+            st.markdown("**General care:**")
+
+            st.info(tips)
 
 # =========================================================
 # ABOUT MODEL
 # =========================================================
-elif page == "🤖 About Model":
 
-    st.title("🤖 About the AI Model")
+elif page == "About Model":
+
+    st.title("About the AI Model")
 
     st.write(
-        "PlantCare AI uses a deep learning image classification model "
-        "trained to recognize different plant leaf conditions."
+        "PlantCare AI uses a deep learning image classification "
+        "model trained on plant leaf images."
     )
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.metric("🌿 Classes", "15")
+        st.metric("Classes", "15")
 
     with col2:
-        st.metric("🎯 Validation Accuracy", "91.3%")
+        st.metric("Validation Accuracy", "91.3%")
 
     with col3:
-        st.metric("🖼️ Input Size", "224 × 224")
+        st.metric("Image Size", "224 × 224")
 
     st.markdown("---")
 
-    st.subheader("🧠 How It Works")
+    st.subheader("Model Pipeline")
 
-    st.markdown("""
-    **1. 📷 Upload Image**
+    steps = [
+        ("01", "Image Upload", "User provides a plant leaf image."),
+        ("02", "Preprocessing", "Image is converted to RGB and resized."),
+        ("03", "Deep Learning", "The trained neural network analyzes visual patterns."),
+        ("04", "Classification", "The model selects the most likely class."),
+        ("05", "Result", "Prediction and confidence are displayed.")
+    ]
 
-    The user uploads a leaf image.
+    for number, title, description in steps:
 
-    **2. 🔄 Image Processing**
+        st.markdown(f"""
+        <div class="card">
 
-    The image is converted to RGB and resized to 224 × 224 pixels.
+        <b>{number} — {title}</b>
 
-    **3. 🧠 Deep Learning Model**
+        <p class="card-text">
+        {description}
+        </p>
 
-    The trained neural network analyzes visual patterns in the leaf.
-
-    **4. 🎯 Prediction**
-
-    The model selects the class with the highest predicted probability.
-
-    **5. 📊 Result**
-
-    The application displays the predicted condition and confidence score.
-    """)
-
-    st.markdown("---")
-
-    st.subheader("🌿 Supported Categories")
-
-    for class_name in class_names:
-        st.write("•", class_name.replace("_", " "))
+        </div>
+        """, unsafe_allow_html=True)
 
 # =========================================================
 # ABOUT PROJECT
 # =========================================================
-elif page == "ℹ️ About Project":
 
-    st.title("ℹ️ About PlantCare AI")
+elif page == "About Project":
+
+    st.title("About PlantCare AI")
 
     st.markdown("""
-    ### 🎯 Project Objective
+    ## 🎯 Project Goal
 
-    The goal of this project is to develop a machine learning application
-    capable of identifying plant leaf diseases from images.
+    PlantCare AI is a machine learning project designed to identify
+    common plant diseases from leaf images.
 
-    ### 🛠️ Technologies Used
+    The system demonstrates how deep learning and computer vision
+    can be combined with a web application to create an accessible
+    plant-health analysis tool.
 
-    - 🐍 Python
-    - 🧠 TensorFlow / Keras
-    - 📊 NumPy
-    - 🖼️ Pillow
-    - 🎨 Streamlit
-    - 🤗 Hugging Face
-    - 💻 GitHub
+    ## 🛠️ Technology Stack
 
-    ### 🌱 Application Features
+    **Machine Learning**
+    - TensorFlow
+    - Keras
+    - NumPy
 
-    - Leaf image upload
-    - AI-based disease classification
-    - Confidence score
-    - Disease information
-    - General care tips
-    - Model information
-    - User-friendly interface
+    **Application**
+    - Streamlit
+    - Pillow
 
-    ### 🚀 Deployment
+    **Deployment**
+    - GitHub
+    - Hugging Face
+    - Streamlit
 
-    The application is deployed using Streamlit and the trained model
-    is hosted through Hugging Face.
+    ## 🌿 Supported Plants
+
+    🍅 Tomato  
+    🥔 Potato  
+    🌶️ Pepper
+
+    ## 📊 Model Performance
+
+    The trained model achieved approximately **91.3% validation accuracy**
+    during development.
+
     """)
 
     st.markdown("---")
 
-    st.success(
-        "🌱 PlantCare AI — Turning machine learning into a practical "
-        "plant-health tool."
-    )
+    st.markdown("""
+    <div class="app-footer">
+    🌿 PlantCare AI<br>
+    AI-powered plant disease detection
+    </div>
+    """, unsafe_allow_html=True)
